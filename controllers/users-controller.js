@@ -22,7 +22,7 @@ const signup = async (req, res, next) => {
       HttpError("Invalid inputs passed, please check your data.", 422)
     );
   }
-  const { name, email, password, places } = req.body;
+  const { name, email, password } = req.body;
 
   let existingUser;
   try {
@@ -49,7 +49,7 @@ const signup = async (req, res, next) => {
     image:
       "https://www.pavilionweb.com/wp-content/uploads/2017/03/man-300x300.png",
     password,
-    places,
+    places: [],
   });
 
   try {
