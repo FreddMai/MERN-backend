@@ -125,7 +125,7 @@ const updatePlace = async (req, res, next) => {
   let place;
   try {
     place = await Place.findById(placeId);
-  } catch (error) {
+  } catch (err) {
     const error = HttpError(
       "Something went wrong, could not update place.",
       500
@@ -138,7 +138,7 @@ const updatePlace = async (req, res, next) => {
 
   try {
     await place.save();
-  } catch (error) {
+  } catch (err) {
     const error = HttpError(
       "Something went wrong, could not update place",
       500
