@@ -18,7 +18,7 @@ const signup = async (req, res, next) => {
   const errros = validationResult(req);
   if (!errros.isEmpty()) {
     return next(
-      HttpError("Invalid inputs passed, please check your data.", 422)
+      new HttpError("Invalid inputs passed, please check your data.", 422)
     );
   }
   const { name, email, password } = req.body;
@@ -82,7 +82,12 @@ const login = async (req, res, next) => {
     return next(error);
   }
 
-  res.status(200).json({ message: "Logged in!" });
+  res
+    .status(200)
+    .json({
+      message: "Logged in!",
+      user: existingUser.toObject({ getters: true }),
+    });
 };
 
 exports.getUsers = getUsers;
