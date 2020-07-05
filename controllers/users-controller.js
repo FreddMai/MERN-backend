@@ -21,6 +21,7 @@ const signup = async (req, res, next) => {
       new HttpError("Invalid inputs passed, please check your data.", 422)
     );
   }
+
   const { name, email, password } = req.body;
 
   let existingUser;
@@ -45,8 +46,7 @@ const signup = async (req, res, next) => {
   const createdUser = new User({
     name,
     email,
-    image:
-      "https://www.pavilionweb.com/wp-content/uploads/2017/03/man-300x300.png",
+    image: req.file.path,
     password,
     places: [],
   });
@@ -54,7 +54,7 @@ const signup = async (req, res, next) => {
   try {
     await createdUser.save();
   } catch (err) {
-    const error = HttpError("Creating user failed, please try again.", 500);
+    const error = new HttpError("Creating user failed, please try again.", 500);
     return next(error);
   }
   res.status(201).json({ user: createdUser.toJSON({ getters: true }) });
