@@ -1,4 +1,4 @@
-const uuid = require("uuid");
+const fs = require("fs");
 const { validationResult } = require("express-validator");
 const mongoose = require("mongoose");
 
@@ -6,7 +6,6 @@ const HttpError = require("../models/http-error");
 const getCoordsForAddress = require("../util/location");
 const Place = require("../models/place");
 const User = require("../models/user");
-const mongooseUniqueValidator = require("mongoose-unique-validator");
 
 const getPlaceById = async (req, res, next) => {
   const placeId = req.params.pid;
@@ -74,8 +73,7 @@ const createPlace = async (req, res, next) => {
     description,
     address,
     location: coordinates,
-    image:
-      "https://www.great-towers.com/sites/default/files/2019-07/tower_0.jpg",
+    image: req.file.path,
     creator,
   });
 
@@ -126,7 +124,7 @@ const updatePlace = async (req, res, next) => {
   try {
     place = await Place.findById(placeId);
   } catch (err) {
-    const error = HttpError(
+    const error = new HttpError(
       "Something went wrong, could not update place.",
       500
     );
@@ -139,7 +137,7 @@ const updatePlace = async (req, res, next) => {
   try {
     await place.save();
   } catch (err) {
-    const error = HttpError(
+    const error = new HttpError(
       "Something went wrong, could not update place",
       500
     );
@@ -168,6 +166,8 @@ const deletePlace = async (req, res, next) => {
     return next(error);
   }
 
+  const imagePath = place.image;
+
   try {
     const sess = await mongoose.startSession();
     sess.startTransaction();
@@ -182,6 +182,10 @@ const deletePlace = async (req, res, next) => {
     );
     return next(error);
   }
+
+  fs.unlink(imagePath, (err) => {
+    console.log(err);
+  });
 
   res.status(200).json({ message: "Deleted Place" });
 };
