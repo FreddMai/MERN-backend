@@ -1,8 +1,10 @@
 const { validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 const HttpError = require("../models/http-error");
 const User = require("../models/user");
+const jwtSecretKey = require("./util/keys").jwtSecretKey;
 
 const getUsers = async (req, res, next) => {
   let users;
@@ -69,7 +71,22 @@ const signup = async (req, res, next) => {
     const error = new HttpError("Creating user failed, please try again.", 500);
     return next(error);
   }
-  res.status(201).json({ user: createdUser.toJSON({ getters: true }) });
+
+  let token;
+  try {
+    token = jwt.sign(
+      { userId: createdUser.id, email: createdUser.email },
+      jwtSecretKey,
+      { expiresIn: "1h" }
+    );
+  } catch (err) {
+    const error = new HttpError("Creating user failed, please try again.", 500);
+    return next(error);
+  }
+
+  res
+    .status(201)
+    .json({ userId: createdUser.id, email: createdUser.email, token: token });
 };
 
 const login = async (req, res, next) => {
@@ -113,9 +130,22 @@ const login = async (req, res, next) => {
     return next(error);
   }
 
+  let token;
+  try {
+    token = jwt.sign(
+      { userId: existingUser.id, email: existingUser.email },
+      jwtSecretKey,
+      { expiresIn: "1h" }
+    );
+  } catch (err) {
+    const error = new HttpError("Logging failed, please try again.", 500);
+    return next(error);
+  }
+
   res.status(200).json({
-    message: "Logged in!",
-    user: existingUser.toObject({ getters: true }),
+    userId: existingUser.id,
+    email: existingUser.email,
+    token: token,
   });
 };
 
