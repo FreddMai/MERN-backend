@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 
 const HttpError = require("../models/http-error");
 const User = require("../models/user");
-const jwtSecretKey = require("./util/keys").jwtSecretKey;
+const jwtSecretKey = require("../util/keys").jwtSecretKey;
 
 const getUsers = async (req, res, next) => {
   let users;
@@ -106,7 +106,7 @@ const login = async (req, res, next) => {
   if (!existingUser) {
     const error = new HttpError(
       "Invalid credentials, could not log you in.",
-      401
+      403
     );
     return next(error);
   }
@@ -125,7 +125,7 @@ const login = async (req, res, next) => {
   if (!isValidPassword) {
     const error = new HttpError(
       "Invalid credentials, could not log you in.",
-      401
+      403
     );
     return next(error);
   }
