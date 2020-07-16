@@ -7,7 +7,6 @@ const path = require("path");
 const placesRoutes = require("./routes/places-routes");
 const usersRoutes = require("./routes/users-routes");
 const HttpError = require("./models/http-error");
-const mongoConnect = require("./util/keys").mongoConnect;
 
 const app = express();
 
@@ -48,7 +47,7 @@ app.use((error, req, res, next) => {
 });
 
 mongoose
-  .connect(mongoConnect)
+  .connect(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0-xwdzv.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`)
   .then(() => {
     app.listen(5000);
   })
